@@ -13,6 +13,8 @@ end
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
+Mongoid.logger.level = Logger::ERROR
+Mongo::Logger.logger.level = Logger::ERROR
 
 require 'voteable_mongo'
 require 'rspec'
