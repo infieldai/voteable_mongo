@@ -2,7 +2,7 @@ module Mongo
   module Voteable
     module Tasks
 
-      # Set counters and point to 0 for uninitialized voteable objects 
+      # Set counters and point to 0 for uninitialized voteable objects
       # in order sort and query
       def self.init_stats(log = false)
         VOTEABLE.each do |class_name, voteable|
@@ -12,7 +12,7 @@ module Mongo
           klass.where(votes: nil).set(votes: DEFAULT_VOTES)
         end
       end
-      
+
       # Re-generate vote counters and vote points
       def self.remake_stats(log = false)
         remake_stats_for_all_voteable_classes(log)
@@ -31,7 +31,7 @@ module Mongo
 
       def self.migrate_old_votes_for(klass, voteable)
         klass.all.each do |doc|
-          # Version 0.6.x use very short field names (u, d, uc, dc, c, p) to minimize 
+          # Version 0.6.x use very short field names (u, d, uc, dc, c, p) to minimize
           # votes storage but it's not human friendly
           # Version >= 0.7.0 use readable field names (up, down, up_count, down_count,
           # count, point)
@@ -67,8 +67,8 @@ module Mongo
           )
         end
       end
-      
-        
+
+
       def self.remake_stats_for_all_voteable_classes(log)
         VOTEABLE.each do |class_name, voteable|
           klass = class_name.constantize
@@ -80,7 +80,7 @@ module Mongo
         end
       end
 
-  
+
       def self.remake_stats_for(doc, voteable)
         up_count = doc.up_voter_ids.length
         down_count = doc.down_voter_ids.length
@@ -113,20 +113,20 @@ module Mongo
           end
         end
       end
-  
-  
+
+
       def self.update_parent_stats_for(doc, parent_class, foreign_key, voteable)
         parent_id = doc.read_attribute(foreign_key.to_sym)
         if parent_id
           up_count = doc.up_voter_ids.length
           down_count = doc.down_voter_ids.length
-      
+
           return if up_count == 0 && down_count == 0
 
           inc_options = {
             'votes.point' => voteable[:up].to_i*up_count + voteable[:down].to_i*down_count
           }
-        
+
           unless voteable[:update_counters] == false
             inc_options.merge!(
               'votes.count' => up_count + down_count,
@@ -136,17 +136,17 @@ module Mongo
           end
 
           parent_ids = parent_id.is_a?(Array) ? parent_id : [ parent_id ]
-          
+
           parent_class.collection.find({'_id' => {'$in' => parent_ids}}).update_many({ '$inc' =>  inc_options })
         end
       end
 
-      private_class_method  :migrate_old_votes_for, 
+      private_class_method  :migrate_old_votes_for,
                             :remake_stats_for,
                             :remake_stats_for_all_voteable_classes,
                             :update_parent_stats,
-                            :update_parent_stats_for                            
-      
+                            :update_parent_stats_for
+
     end
   end
 end

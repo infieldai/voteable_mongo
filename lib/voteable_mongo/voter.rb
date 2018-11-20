@@ -26,7 +26,7 @@ module Mongo
           votee_id = options[:votee_id]
         end
       end
-    
+
       votee_class.voted?(:voter_id => id, :votee_id => votee_id)
     end
 
@@ -42,7 +42,7 @@ module Mongo
       end
       votee.vote_value(_id)
     end
-  
+
     # Cancel the vote on a votee
     #
     # @param [Object] votee the votee to be unvoted
@@ -73,19 +73,19 @@ module Mongo
       else
         votee_class = options[:votee_class]
       end
-    
+
       if options[:value].nil?
         options[:unvote] = true
         options[:value] = vote_value(options)
       else
         options[:revote] = options.has_key?(:revote) ? !options[:revote].blank? : voted?(options)
       end
-    
+
       options[:voter] = self
       options[:voter_id] = id
 
       (votee || votee_class).vote(options)
     end
-    
+
   end
 end
